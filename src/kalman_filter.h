@@ -7,6 +7,7 @@ public:
 
   // state vector
   Eigen::VectorXd x_;
+  Eigen::VectorXd z_;
 
   // state covariance matrix
   Eigen::MatrixXd P_;
@@ -19,9 +20,16 @@ public:
 
   // measurement matrix
   Eigen::MatrixXd H_;
+  Eigen::MatrixXd Hj_;
 
   // measurement covariance matrix
   Eigen::MatrixXd R_;
+
+    // measurement covariance matrix for Radar
+  Eigen::MatrixXd R_radar_;
+
+
+
 
   /**
    * Constructor
@@ -56,11 +64,6 @@ public:
    * Updates the state by using standard Kalman Filter equations
    * @param z The measurement at k+1
    */
-
-  x_ = F_ * x_;
-  MatrixXd Ft = F_.transpose();
-  P_ = F_ * P_ * Ft + Q_;
-
 
   void Update(const Eigen::VectorXd &z);
 
