@@ -49,6 +49,21 @@ void KalmanFilter::UpdateEKF(const VectorXd &z) {
   float theta_pred = atan2(x_[1], x_[0]);
   float rho_dot_pred = (x_[0] * x_[2] + x_[1] * x_[3]) / rho_pred;
 
+  // to avoid dividing by zero
+  if(rho_pred<0.00001)
+  {
+      rho_pred=0.00001;
+  }
+
+
+  if(theta_pred > M_PI) 
+  {
+    theta_pred = theta_pred - floor(fabs(theta_pred/M_PI)) * M_PI;
+  } else if (theta_pred < -M_PI) 
+  {
+    theta_pred = theta_pred + floor(fabs(theta_pred/M_PI)) * M_PI;
+  }
+
 
   VectorXd z_pred(3);
   z_pred  << rho_pred, theta_pred, rho_dot_pred;
