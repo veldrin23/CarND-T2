@@ -25,6 +25,8 @@ FusionEKF::FusionEKF() {
   R_laser_ = MatrixXd(2, 2);  //noise vir laser
   R_radar_ = MatrixXd(3, 3);  // noise vir radar
   H_laser_ = MatrixXd(2, 4);  // H vir Laser
+  H_laser_ <<   1, 0, 0, 0,
+                0, 1, 0, 0;
 
 
   //measurement covariance matrix - laser
@@ -93,6 +95,9 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
     }
 
     is_initialized_ = true;
+    noise_ax = 9.0;
+    noise_ay = 9.0;
+
     return;
   }
 
@@ -105,6 +110,8 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
   float dt3 = pow(dt,3);
   float dt4 = pow(dt,4);
 
+
+
   previous_timestamp_ = measurement_pack.timestamp_;
 
   ekf_.F_ <<    1, 0, dt, 0,
@@ -112,15 +119,22 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
                 0, 0, 1, 0,
                 0, 0, 0, 1;
 
-  float noise_ax = 9.0;
-  float noise_ay = 9.0;
+  // const float noise_ax = 9.0;
+  // const float noise_ay = 9.0;
 
   ekf_.Q_ <<  dt4/4*noise_ax, 0, dt3/2*noise_ax, 0,
         0, dt4/4*noise_ay, 0, dt3/2*noise_ay,
         dt3/2*noise_ax, 0, dt2*noise_ax, 0,
         0, dt3/2*noise_ay, 0, dt2*noise_ay;
 
-  ekf_.Predict();
+
+  if ( dt > 0.001 ) {
+    ekf_.Predict();
+  } else {
+    cout << "dt is too small, skipping prediction step\n";
+  }
+
+  
 
   /*****************************************************************************
    *  Update
@@ -152,3 +166,4 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
   // cout << "x_ = " << ekf_.x_ << endl;
   // cout << "P_ = " << ekf_.P_ << endl;
 }
+  

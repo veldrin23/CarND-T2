@@ -52,6 +52,8 @@ MatrixXd Tools::CalculateJacobian(const VectorXd& x_state) {
 	// taken from lesson
 
   	MatrixXd Hj(3,4);
+  	// initialize matrix with zeros
+  	Hj.fill(0.0);
 	//recover state parameters
 	float px = x_state(0);
 	float py = x_state(1);
