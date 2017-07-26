@@ -88,8 +88,8 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
       // when it's laser (lasar with an A sounds cooler)
       ekf_.x_ <<  measurement_pack.raw_measurements_[0], 
                   measurement_pack.raw_measurements_[1],      
-                  0, 
-                  0;
+                  0.0, 
+                  0.0;
     }
 
     is_initialized_ = true;
@@ -130,41 +130,22 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
     // Radar updates
     if(true) // to check performance of laser/ radar alone. better accuracy with both
     {
-    float rho = measurement_pack.raw_measurements_[0];
-    float theta = measurement_pack.raw_measurements_[1];
-    float rhodot = measurement_pack.raw_measurements_[2];
 
-
-    // keeps theta between -pi and pi
-    if(theta > M_PI) {
-      theta = theta - floor(fabs(theta/M_PI)) * M_PI;
-    } else if (theta < -M_PI) 
-    {
-      theta = theta + floor(fabs(theta/M_PI)) * M_PI;
-    }
-    
-
-    VectorXd zR(3);
-    zR << rho,theta,rhodot;
 
     Tools tools;
     ekf_.H_ = tools.CalculateJacobian(ekf_.x_);
 
     ekf_.R_ = R_radar_;
-    ekf_.UpdateEKF(zR);
+    ekf_.UpdateEKF(measurement_pack.raw_measurements_);
     }
   } else {
-    if(true)
-    {
+
     // Laser updates
     ekf_.H_ = H_laser_;
     ekf_.R_ = R_laser_;
-    VectorXd zL(2);
-    zL << measurement_pack.raw_measurements_[0],
-                      measurement_pack.raw_measurements_[1];
-    ekf_.Update(zL);
+    ekf_.Update(measurement_pack.raw_measurements_);
 
-    }
+
   }
 
   // print the output
